@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #ff0000;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h2>Reportes Asignados</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID Reporte</th>
+                <th>Descripción</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody id="reportesBody">
+            <!-- Aquí se insertarán los reportes -->
+        </tbody>
+    </table>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // 🔹 Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBNeUIIrJlQ1LYCmXSuVDGWlYHd_YwhGP8",
+            authDomain: "spvd-e99ae.firebaseapp.com",
+            projectId: "spvd-e99ae",
+            storageBucket: "spvd-e99ae.firebasestorage.app",
+            messagingSenderId: "1011235959405",
+            appId: "1:1011235959405:web:bdbf0ecc29e56ca56dc564",
+            measurementId: "G-TPC02L880L"
+        };
+
+        // 🔹 Inicializar Firebase y Firestore
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 🔹 Obtener el correo guardado en `localStorage`
+        const correoUsuario = localStorage.getItem("correoUsuario");
+        if (!correoUsuario) {
+            alert("No hay usuario logueado.");
+            window.location.href = "index.html";  // 🔹 Redirigir si no hay usuario
+        }
+
+        // 🔹 Función para cargar reportes del usuario
+        async function cargarReportes() {
+            try {
+                const q = query(collection(db, "Reportes"), where("correoTecnico", "==", correoUsuario));
+                const querySnapshot = await getDocs(q);
+                const reportesBody = document.getElementById("reportesBody");
+
+                if (querySnapshot.empty) {
+                    reportesBody.innerHTML = `<tr><td colspan="3">No hay reportes asignados.</td></tr>`;
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    reportesBody.innerHTML += `
+                        <tr>
+                            <td>${doc.id}</td>
+                            <td>${data.descripcion}</td>
+                            <td>${data.fecha}</td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error("Error al cargar reportes:", error);
+            }
+        }
+
+        // 🔹 Llamar la función al cargar la página
+        cargarReportes();
+    </script>
+</body>
+</html>
