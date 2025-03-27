@@ -18,6 +18,51 @@
             background-color: #ff0000;
             color: white;
         }
+        .btn-editar {
+            background-color: #007bff;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .btn-editar:hover {
+            background-color: #0056b3;
+        }
+        /* Estilos para la ventana emergente */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+        }
+        .close-btn {
+            background-color: red;
+            color: white;
+            padding: 5px;
+            border: none;
+            cursor: pointer;
+            float: right;
+        }
+        .save-btn {
+            background-color: green;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -25,18 +70,38 @@
     <table>
         <thead>
             <tr>
-                <th>ID Reporte</th>
                 <th>Descripción</th>
                 <th>Fecha</th>
+                <th>Técnico Asignado</th>
+                <th>Estado</th>
+                <th>Acción</th>
             </tr>
         </thead>
-        <tbody id="reportesBody">
-        </tbody>
+        <tbody id="reportesBody"></tbody>
     </table>
+
+    <!-- Ventana emergente -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="cerrarModal()">X</button>
+            <h3>Editar Reporte</h3>
+            <label>Estado:</label>
+            <select id="estado">
+                <option value="Pendiente">Pendiente</option>
+                <option value="En Proceso">En Proceso</option>
+                <option value="Completado">Completado</option>
+            </select>
+            <br><br>
+            <label>Información adicional:</label>
+            <textarea id="infoAdicional" rows="3" style="width: 100%;"></textarea>
+            <br><br>
+            <button class="save-btn" onclick="guardarCambios()">Guardar</button>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, query, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBNeUIIrJlQ1LYCmXSuVDGWlYHd_YwhGP8",
@@ -51,44 +116,81 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const tecnicoId = localStorage.getItem("tecnicoId");
-
-        console.log("ID del técnico logueado:", tecnicoId);
-
-        if (!tecnicoId) {
-            alert("No hay técnico logueado.");
-            window.location.href = "index.html";
-        }
+        let reporteIdActual = null; // Guardará el ID del reporte seleccionado
 
         async function cargarReportes() {
             try {
-                const q = query(collection(db, "Reportes"), where("tecnicoId", "==", tecnicoId));
+                const q = query(collection(db, "Reportes"));
                 const querySnapshot = await getDocs(q);
-
-                console.log("Documentos obtenidos:", querySnapshot.docs.map(doc => doc.data()));
-
                 const reportesBody = document.getElementById("reportesBody");
                 reportesBody.innerHTML = "";
 
                 if (querySnapshot.empty) {
-                    reportesBody.innerHTML = `<tr><td colspan="3">No hay reportes asignados.</td></tr>`;
+                    reportesBody.innerHTML = `<tr><td colspan="6">No hay reportes disponibles.</td></tr>`;
                     return;
                 }
 
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
+                for (const docu of querySnapshot.docs) {
+                    const data = docu.data();
+                    const tecnicoId = data.tecnicoId || "Desconocido";
+                    let tecnicoNombre = "No asignado";
+
+                    if (tecnicoId !== "Desconocido") {
+                        const tecnicoDoc = await getDoc(doc(db, "Tecnicos", tecnicoId));
+                        if (tecnicoDoc.exists()) {
+                            tecnicoNombre = tecnicoDoc.data().nombre || "Sin nombre";
+                        }
+                    }
+
                     reportesBody.innerHTML += `
                         <tr>
-                            <td>${doc.id}</td>
+                           
                             <td>${data.descripcion || "Sin descripción"}</td>
                             <td>${data.fecha || "Sin fecha"}</td>
+                            <td>${tecnicoNombre}</td>
+                            <td>${data.estado || "Pendiente"}</td>
+                            <td><button class="btn-editar" onclick="abrirModal('${docu.id}', '${data.estado || 'Pendiente'}', '${data.informacion || ''}')">Editar</button></td>
                         </tr>
                     `;
-                });
+                }
             } catch (error) {
                 console.error("Error al cargar reportes:", error);
             }
         }
+
+        // Función para abrir la ventana emergente con la info del reporte
+        window.abrirModal = function(id, estadoActual, infoActual) {
+            reporteIdActual = id;
+            document.getElementById("estado").value = estadoActual;
+            document.getElementById("infoAdicional").value = infoActual;
+            document.getElementById("modal").style.display = "flex";
+        };
+
+        // Función para cerrar la ventana emergente
+        window.cerrarModal = function() {
+            document.getElementById("modal").style.display = "none";
+        };
+
+        // Función para guardar los cambios en Firestore
+        window.guardarCambios = async function() {
+            if (!reporteIdActual) return;
+            const nuevoEstado = document.getElementById("estado").value;
+            const nuevaInfo = document.getElementById("infoAdicional").value;
+
+            try {
+                const reporteRef = doc(db, "Reportes", reporteIdActual);
+                await updateDoc(reporteRef, {
+                    estado: nuevoEstado,
+                    informacion: nuevaInfo
+                });
+
+                alert("Reporte actualizado correctamente.");
+                cerrarModal();
+                cargarReportes(); // Recargar la tabla
+            } catch (error) {
+                console.error("Error al actualizar el reporte:", error);
+            }
+        };
 
         cargarReportes();
     </script>
