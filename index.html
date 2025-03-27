@@ -121,13 +121,16 @@
                 const userData = await validateUser(email);
                 if (userData) {
                     const userId = userData.id; // Accede a 'id' dentro del documento
-                    if (userId) {
+                    const userName = userData.nombre; // Suponiendo que el campo del nombre es 'nombre'
+    
+                    if (userId && userName) {
                         localStorage.setItem("correoUsuario", email);
                         localStorage.setItem("tecnicoId", userId); // Guardar el ID del técnico
+                        localStorage.setItem("nombreTecnico", userName); // Guardar el nombre del técnico
                         alert("Inicio de sesión exitoso. Redirigiendo...");
                         window.location.href = "Pagin1.html"; // Redirigir al página de reportes
                     } else {
-                        showError("ID del usuario no disponible.");
+                        showError("Datos del usuario no disponibles.");
                     }
                 } else {
                     showError("Usuario no encontrado.");
@@ -148,7 +151,7 @@
                     // Retorna el primer documento encontrado y su 'id'
                     const userDoc = querySnapshot.docs[0];
                     const userData = userDoc.data();
-                    return { id: userDoc.id, ...userData }; // Devuelve el 'id' y el resto de los datos
+                    return { id: userDoc.id, nombre: userData.nombre, ...userData }; // Devuelve el 'id', 'nombre' y el resto de los datos
                 }
                 return null;
             } catch (error) {
@@ -163,6 +166,5 @@
             errorMessage.style.display = "block";
         }
     </script>
-    
 </body>
 </html>
