@@ -91,7 +91,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
+    
         const firebaseConfig = {
             apiKey: "AIzaSyBNeUIIrJlQ1LYCmXSuVDGWlYHd_YwhGP8",
             authDomain: "spvd-e99ae.firebaseapp.com",
@@ -101,29 +101,34 @@
             appId: "1:1011235959405:web:bdbf0ecc29e56ca56dc564",
             measurementId: "G-TPC02L880L"
         };
-
+    
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
+    
         const loginBtn = document.getElementById('loginBtn');
         const usernameInput = document.getElementById('username');
         const errorMessage = document.getElementById('errorMessage');
-
+    
         loginBtn.addEventListener('click', async () => {
             const email = usernameInput.value.trim().toLowerCase();
-
+    
             if (email === "") {
                 showError("Por favor, ingresa tu correo.");
                 return;
             }
-
+    
             try {
                 const userData = await validateUser(email);
                 if (userData) {
-                    localStorage.setItem("correoUsuario", email);
-                    localStorage.setItem("tecnicoId", userData.id); // Guardar el ID del técnico
-                    alert("Inicio de sesión exitoso. Redirigiendo...");
-                    window.location.href = "Pagin1.html"; 
+                    const userId = userData.id; // Accede a 'id' dentro del documento
+                    if (userId) {
+                        localStorage.setItem("correoUsuario", email);
+                        localStorage.setItem("tecnicoId", userId); // Guardar el ID del técnico
+                        alert("Inicio de sesión exitoso. Redirigiendo...");
+                        window.location.href = "Pagin1.html"; // Redirigir al página de reportes
+                    } else {
+                        showError("ID del usuario no disponible.");
+                    }
                 } else {
                     showError("Usuario no encontrado.");
                 }
@@ -132,14 +137,18 @@
                 showError("Hubo un error al verificar los datos.");
             }
         });
-
+    
+        // Función para validar al usuario mediante Firestore
         async function validateUser(email) {
             try {
                 const q = query(collection(db, "Tecnicos"), where("correo", "==", email));
                 const querySnapshot = await getDocs(q);
-
+    
                 if (!querySnapshot.empty) {
-                    return querySnapshot.docs[0]; // Retorna el documento del usuario encontrado
+                    // Retorna el primer documento encontrado y su 'id'
+                    const userDoc = querySnapshot.docs[0];
+                    const userData = userDoc.data();
+                    return { id: userDoc.id, ...userData }; // Devuelve el 'id' y el resto de los datos
                 }
                 return null;
             } catch (error) {
@@ -147,11 +156,13 @@
                 return null;
             }
         }
-
+    
+        // Función para mostrar errores en la interfaz
         function showError(message) {
             errorMessage.textContent = message;
             errorMessage.style.display = "block";
         }
     </script>
+    
 </body>
 </html>
