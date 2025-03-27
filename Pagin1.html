@@ -223,32 +223,22 @@
 
         let reporteIdActual = null;
 
-        async function cargarReportes() {
+        async function cargarReportes(tecnicoIdActual) { 
     try {
-        const q = query(collection(db, "Reportes"));
+        const q = query(collection(db, "Reportes"), where("tecnicoId", "==", tecnicoIdActual));
         const querySnapshot = await getDocs(q);
         const reportesBody = document.getElementById("reportesBody");
         reportesBody.innerHTML = "";
 
-        // Corregido: Uso de comillas invertidas para el contenido HTML
         if (querySnapshot.empty) {
-            reportesBody.innerHTML = `<tr><td colspan="6">No hay reportes disponibles.</td></tr>`;
+            reportesBody.innerHTML = `<tr><td colspan="6">No hay reportes disponibles para este técnico.</td></tr>`;
             return;
         }
 
         for (const docu of querySnapshot.docs) {
             const data = docu.data();
-            const tecnicoId = data.tecnicoId || "Desconocido";
-            let tecnicoNombre = "No asignado";
-
-            if (tecnicoId !== "Desconocido") {
-                const tecnicoDoc = await getDoc(doc(db, "Tecnicos", tecnicoId));
-                if (tecnicoDoc.exists()) {
-                    tecnicoNombre = tecnicoDoc.data().nombre || "Sin nombre";
-                }
-            }
-
-            // Corregido: Uso de comillas invertidas para el contenido HTML
+            const tecnicoNombre = "Asignado"; // Ya que solo se filtran los reportes del técnico actual
+            
             reportesBody.innerHTML += 
                 `<tr>
                     <td>${data.observaciones || "Sin descripción"}</td>
@@ -262,6 +252,7 @@
         console.error("Error al cargar reportes:", error);
     }
 }
+
 
 
         window.abrirModal = function(id, estadoActual, infoActual) {
