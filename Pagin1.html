@@ -31,7 +31,6 @@
             </tr>
         </thead>
         <tbody id="reportesBody">
-            <!-- Aquí se insertarán los reportes -->
         </tbody>
     </table>
 
@@ -39,7 +38,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // 🔹 Configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBNeUIIrJlQ1LYCmXSuVDGWlYHd_YwhGP8",
             authDomain: "spvd-e99ae.firebaseapp.com",
@@ -50,23 +48,27 @@
             measurementId: "G-TPC02L880L"
         };
 
-        // 🔹 Inicializar Firebase y Firestore
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // 🔹 Obtener el correo guardado en `localStorage`
-        const correoUsuario = localStorage.getItem("correoUsuario");
-        if (!correoUsuario) {
-            alert("No hay usuario logueado.");
-            window.location.href = "index.html";  // 🔹 Redirigir si no hay usuario
+        const tecnicoId = localStorage.getItem("tecnicoId");
+
+        console.log("ID del técnico logueado:", tecnicoId);
+
+        if (!tecnicoId) {
+            alert("No hay técnico logueado.");
+            window.location.href = "index.html";
         }
 
-        // 🔹 Función para cargar reportes del usuario
         async function cargarReportes() {
             try {
-                const q = query(collection(db, "Reportes"), where("correoTecnico", "==", correoUsuario));
+                const q = query(collection(db, "Reportes"), where("tecnicoId", "==", tecnicoId));
                 const querySnapshot = await getDocs(q);
+
+                console.log("Documentos obtenidos:", querySnapshot.docs.map(doc => doc.data()));
+
                 const reportesBody = document.getElementById("reportesBody");
+                reportesBody.innerHTML = "";
 
                 if (querySnapshot.empty) {
                     reportesBody.innerHTML = `<tr><td colspan="3">No hay reportes asignados.</td></tr>`;
@@ -78,8 +80,8 @@
                     reportesBody.innerHTML += `
                         <tr>
                             <td>${doc.id}</td>
-                            <td>${data.descripcion}</td>
-                            <td>${data.fecha}</td>
+                            <td>${data.descripcion || "Sin descripción"}</td>
+                            <td>${data.fecha || "Sin fecha"}</td>
                         </tr>
                     `;
                 });
@@ -88,7 +90,6 @@
             }
         }
 
-        // 🔹 Llamar la función al cargar la página
         cargarReportes();
     </script>
 </body>

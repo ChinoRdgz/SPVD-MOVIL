@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,7 +18,6 @@
             align-items: center;
             height: 100vh;
             background-color: #ff0000;
-            /* Fondo rojo */
         }
 
         .login-box {
@@ -76,93 +74,84 @@
         }
     </style>
 </head>
-
 <body>
     <div class="login-container">
         <div class="login-box">
             <h2>Iniciar sesión</h2>
             <div class="input-group">
-                <input type="text" id="username" placeholder="Usuario" required>
+                <input type="text" id="username" placeholder="Correo electrónico" required>
             </div>
             <div class="input-group">
-            <button class="btn" id="loginBtn">Iniciar sesión</button>
-            <p class="error-message" id="errorMessage">Usuario o contraseña incorrectos.</p>
+                <button class="btn" id="loginBtn">Iniciar sesión</button>
+                <p class="error-message" id="errorMessage">Usuario incorrecto.</p>
+            </div>
         </div>
     </div>
 
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 🔹 Configuración de Firebase
-const firebaseConfig = {
-    apiKey: "AIzaSyBNeUIIrJlQ1LYCmXSuVDGWlYHd_YwhGP8",
-    authDomain: "spvd-e99ae.firebaseapp.com",
-    projectId: "spvd-e99ae",
-    storageBucket: "spvd-e99ae.firebasestorage.app",
-    messagingSenderId: "1011235959405",
-    appId: "1:1011235959405:web:bdbf0ecc29e56ca56dc564",
-    measurementId: "G-TPC02L880L"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyBNeUIIrJlQ1LYCmXSuVDGWlYHd_YwhGP8",
+            authDomain: "spvd-e99ae.firebaseapp.com",
+            projectId: "spvd-e99ae",
+            storageBucket: "spvd-e99ae.firebasestorage.app",
+            messagingSenderId: "1011235959405",
+            appId: "1:1011235959405:web:bdbf0ecc29e56ca56dc564",
+            measurementId: "G-TPC02L880L"
+        };
 
-// 🔹 Inicializar Firebase y Firestore
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-// 🔹 Referencias al formulario
-const loginBtn = document.getElementById('loginBtn');
-const usernameInput = document.getElementById('username');
-const errorMessage = document.getElementById('errorMessage');
+        const loginBtn = document.getElementById('loginBtn');
+        const usernameInput = document.getElementById('username');
+        const errorMessage = document.getElementById('errorMessage');
 
-// 🔹 Evento de login
-loginBtn.addEventListener('click', async () => {
-    const email = usernameInput.value.trim().toLowerCase();
+        loginBtn.addEventListener('click', async () => {
+            const email = usernameInput.value.trim().toLowerCase();
 
-    if (email === "") {
-        showError("Por favor, ingresa tu correo.");
-        return;
-    }
+            if (email === "") {
+                showError("Por favor, ingresa tu correo.");
+                return;
+            }
 
-    try {
-        const userExists = await validateUser(email);
-        if (userExists) {
-            localStorage.setItem("correoUsuario", email); // 🔹 Guardar correo en localStorage
-            alert("Inicio de sesión exitoso. Redirigiendo...");
-            window.location.href = "/Pagin1.html";  // 🔹 Redirige a la página de reportes
-        } else {
-            showError("Usuario no encontrado.");
+            try {
+                const userData = await validateUser(email);
+                if (userData) {
+                    localStorage.setItem("correoUsuario", email);
+                    localStorage.setItem("tecnicoId", userData.id); // Guardar el ID del técnico
+                    alert("Inicio de sesión exitoso. Redirigiendo...");
+                    window.location.href = "Pagin1.html"; 
+                } else {
+                    showError("Usuario no encontrado.");
+                }
+            } catch (error) {
+                console.error("Error al validar usuario:", error);
+                showError("Hubo un error al verificar los datos.");
+            }
+        });
+
+        async function validateUser(email) {
+            try {
+                const q = query(collection(db, "Tecnicos"), where("correo", "==", email));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    return querySnapshot.docs[0]; // Retorna el documento del usuario encontrado
+                }
+                return null;
+            } catch (error) {
+                console.error("Error al acceder a Firestore:", error);
+                return null;
+            }
         }
-    } catch (error) {
-        console.error("Error al validar usuario:", error);
-        showError("Hubo un error al verificar los datos.");
-    }
-});
 
-// 🔹 Función para validar si el correo existe en Firestore
-async function validateUser(email) {
-    try {
-        const q = query(collection(db, "Tecnicos"), where("correo", "==", email));
-        const querySnapshot = await getDocs(q);
-        return !querySnapshot.empty;  // 🔹 Retorna `true` si encontró un usuario
-    } catch (error) {
-        console.error("Error al acceder a Firestore:", error);
-        return false;
-    }
-}
-
-// 🔹 Función para mostrar mensaje de error
-function showError(message) {
-    errorMessage.textContent = message;
-    errorMessage.style.display = "block";
-}
-
-
-
-
-
-
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = "block";
+        }
     </script>
 </body>
-
 </html>
