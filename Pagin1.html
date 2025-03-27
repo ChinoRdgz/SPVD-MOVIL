@@ -274,7 +274,7 @@
             if (!reporteIdActual) return;
             await updateDoc(doc(db, "Reportes", reporteIdActual), {
                 estado: document.getElementById("estado").value,
-                informacion: document.getElementById("infoAdicional").value
+                informacion: document.getElementById("observaciones").value
             });
             alert("Reporte actualizado.");
             cerrarModal();
