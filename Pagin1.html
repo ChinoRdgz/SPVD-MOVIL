@@ -206,7 +206,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, query, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, query, getDocs, doc, getDoc, updateDoc, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBNeUIIrJlQ1LYCmXSuVDGWlYHd_YwhGP8",
@@ -223,45 +223,43 @@
 
         let reporteIdActual = null;
 
-        async function cargarReportes() {
-            try {
-                const q = query(collection(db, "Reportes"));
-                const querySnapshot = await getDocs(q);
-                const reportesBody = document.getElementById("reportesBody");
-                reportesBody.innerHTML = "";
-
-                if (querySnapshot.empty) {
-                    reportesBody.innerHTML = <tr><td colspan="6">No hay reportes disponibles.</td></tr>;
-                    return;
-                }
-
-                for (const docu of querySnapshot.docs) {
-                    const data = docu.data();
-                    const tecnicoId = data.tecnicoId || "Desconocido";
-                    let tecnicoNombre = "No asignado";
-
-                    if (tecnicoId !== "Desconocido") {
-                        const tecnicoDoc = await getDoc(doc(db, "Tecnicos", tecnicoId));
-                        if (tecnicoDoc.exists()) {
-                            tecnicoNombre = tecnicoDoc.data().nombre || "Sin nombre";
-                        }
-                    }
-
-                    reportesBody.innerHTML += 
-                        <tr>
-                          
-                            <td>${data.observaciones ||   "Sin descripción"}</td>
-                            <td>${data.fechaTermino || "Sin fecha"}</td>
-                            <td>${tecnicoNombre}</td>
-                            <td>${data.estado || "Pendiente"}</td>
-                            <td><button class="btn-editar" onclick="abrirModal('${docu.id}', '${data.estado || 'Pendiente'}', '${data.informacion || ''}')">Editar</button></td>
-                        </tr>
-                    ;
-                }
-            } catch (error) {
-                console.error("Error al cargar reportes:", error);
-            }
+        async function cargarReportes(tecnicoIdActual) { 
+    try {
+        if (!tecnicoIdActual) {
+            console.error("Error: tecnicoIdActual es undefined o null");
+            return;
         }
+
+        const q = query(collection(db, "Reportes"), where("tecnicoId", "==", tecnicoIdActual));
+        const querySnapshot = await getDocs(q);
+        const reportesBody = document.getElementById("reportesBody");
+        reportesBody.innerHTML = "";
+
+        if (querySnapshot.empty) {
+            reportesBody.innerHTML = `<tr><td colspan="6">No hay reportes disponibles para este técnico.</td></tr>`;
+            return;
+        }
+
+        for (const docu of querySnapshot.docs) {
+            const data = docu.data();
+            const tecnicoNombre = "Asignado";
+            
+            reportesBody.innerHTML += 
+                `<tr>
+                    <td>${data.observaciones || "Sin descripción"}</td>
+                    <td>${data.fechaTermino || "Sin fecha"}</td>
+                    <td>${tecnicoNombre}</td>
+                    <td>${data.estado || "Pendiente"}</td>
+                    <td><button class="btn-editar" onclick="abrirModal('${docu.id}', '${data.estado || 'Pendiente'}', '${data.informacion || ''}')">Editar</button></td>
+                </tr>`;
+        }
+    } catch (error) {
+        console.error("Error al cargar reportes:", error);
+    }
+}
+
+
+
 
         window.abrirModal = function(id, estadoActual, infoActual) {
             reporteIdActual = id;
