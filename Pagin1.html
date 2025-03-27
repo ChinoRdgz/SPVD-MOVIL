@@ -40,6 +40,12 @@
             font-size: 22px;
         }
 
+        /* 🔹 Contenedor responsivo para la tabla */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
         /* 🔹 Tabla de reportes */
         table {
             width: 100%;
@@ -142,9 +148,6 @@
             .container {
                 padding: 10px;
             }
-            table {
-                font-size: 12px;
-            }
             .btn-editar {
                 padding: 5px 8px;
                 font-size: 10px;
@@ -166,19 +169,20 @@
 
     <div class="container">
         <h2>Reportes Asignados</h2>
-        <table>
-            <thead>
-                <tr>
-                   
-                    <th>Descripción</th>
-                    <th>Fecha</th>
-                    <th>Técnico Asignado</th>
-                    <th>Estado</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody id="reportesBody"></tbody>
-        </table>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th>Fecha</th>
+                        <th>Técnico Asignado</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="reportesBody"></tbody>
+            </table>
+        </div>
     </div>
 
     <!-- 🔹 Ventana emergente -->
@@ -205,7 +209,7 @@
         import { getFirestore, collection, query, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyBNeUIIrJlQ1LYCmXSuVDGWlYHd_YwhGP8",
+            apiKey: "API_KEY",
             authDomain: "spvd-e99ae.firebaseapp.com",
             projectId: "spvd-e99ae",
             storageBucket: "spvd-e99ae.firebasestorage.app",
@@ -220,65 +224,43 @@
         let reporteIdActual = null;
 
         async function cargarReportes() {
-            try {
-                const q = query(collection(db, "Reportes"));
-                const querySnapshot = await getDocs(q);
-                const reportesBody = document.getElementById("reportesBody");
-                reportesBody.innerHTML = "";
+            const q = query(collection(db, "Reportes"));
+            const querySnapshot = await getDocs(q);
+            const reportesBody = document.getElementById("reportesBody");
+            reportesBody.innerHTML = "";
 
-                if (querySnapshot.empty) {
-                    reportesBody.innerHTML = `<tr><td colspan="6">No hay reportes disponibles.</td></tr>`;
-                    return;
-                }
+            querySnapshot.forEach(async (docu) => {
+                const data = docu.data();
+                let tecnicoNombre = "No asignado";
 
-                for (const docu of querySnapshot.docs) {
-                    const data = docu.data();
-                    const tecnicoId = data.tecnicoId || "Desconocido";
-                    let tecnicoNombre = "No asignado";
-
-                    if (tecnicoId !== "Desconocido") {
-                        const tecnicoDoc = await getDoc(doc(db, "Tecnicos", tecnicoId));
-                        if (tecnicoDoc.exists()) {
-                            tecnicoNombre = tecnicoDoc.data().nombre || "Sin nombre";
-                        }
+                if (data.tecnicoId) {
+                    const tecnicoDoc = await getDoc(doc(db, "Tecnicos", data.tecnicoId));
+                    if (tecnicoDoc.exists()) {
+                        tecnicoNombre = tecnicoDoc.data().nombre || "Sin nombre";
                     }
-
-                    reportesBody.innerHTML += `
-                        <tr>
-                          
-                            <td>${data.observaciones ||   "Sin descripción"}</td>
-                            <td>${data.fechaTermino || "Sin fecha"}</td>
-                            <td>${tecnicoNombre}</td>
-                            <td>${data.estado || "Pendiente"}</td>
-                            <td><button class="btn-editar" onclick="abrirModal('${docu.id}', '${data.estado || 'Pendiente'}', '${data.informacion || ''}')">Editar</button></td>
-                        </tr>
-                    `;
                 }
-            } catch (error) {
-                console.error("Error al cargar reportes:", error);
-            }
+
+                reportesBody.innerHTML += `
+                    <tr>
+                        <td>${data.observaciones || "Sin descripción"}</td>
+                        <td>${data.fechaTermino || "Sin fecha"}</td>
+                        <td>${tecnicoNombre}</td>
+                        <td>${data.estado || "Pendiente"}</td>
+                        <td><button class="btn-editar" onclick="abrirModal('${docu.id}', '${data.estado}', '${data.informacion || ''}')">Editar</button></td>
+                    </tr>
+                `;
+            });
         }
 
-        window.abrirModal = function(id, estadoActual, infoActual) {
+        window.abrirModal = function(id, estado, info) {
             reporteIdActual = id;
-            document.getElementById("estado").value = estadoActual;
-            document.getElementById("infoAdicional").value = infoActual;
+            document.getElementById("estado").value = estado;
+            document.getElementById("infoAdicional").value = info;
             document.getElementById("modal").style.display = "flex";
         };
 
         window.cerrarModal = function() {
             document.getElementById("modal").style.display = "none";
-        };
-
-        window.guardarCambios = async function() {
-            if (!reporteIdActual) return;
-            await updateDoc(doc(db, "Reportes", reporteIdActual), {
-                estado: document.getElementById("estado").value,
-                observaciones: document.getElementById("infoAdicional").value
-            });
-            alert("Reporte actualizado.");
-            cerrarModal();
-            cargarReportes();
         };
 
         cargarReportes();
