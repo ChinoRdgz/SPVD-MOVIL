@@ -4,163 +4,189 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reportes</title>
-    <style>
-        /* 🔹 Estilos generales */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
+    
+    <style>/* 🔹 Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
 
-        /* 🔹 Barra superior */
-        .navbar {
-            background-color: #ff0000;
-            padding: 10px;
-            color: white;
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-        }
+/* 🔹 Barra superior */
+.navbar {
+    background-color: #ff0000;
+    padding: 12px;
+    color: white;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+}
 
-        /* 🔹 Contenedor principal */
-        .container {
-            width: 100%;
-            max-width: 1000px;
-            margin: 20px auto;
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+/* 🔹 Contenedor principal */
+.container {
+    width: 95%;
+    max-width: 1000px;
+    margin: 20px auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-        h2 {
-            text-align: center;
-            color: #333;
-            font-size: 22px;
-        }
+h2 {
+    text-align: center;
+    color: #333;
+    font-size: 24px;
+}
 
-        /* 🔹 Contenedor responsivo para la tabla */
-        .table-container {
-            width: 100%;
-            overflow-x: auto;
-        }
+/* 🔹 Contenedor responsivo para la tabla */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
 
-        /* 🔹 Tabla de reportes */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-            font-size: 14px;
-        }
-        th {
-            background-color: #ff0000;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
+/* 🔹 Tabla de reportes */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    font-size: 16px;
+}
+th {
+    background-color: #ff0000;
+    color: white;
+}
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+tr:hover {
+    background-color: #f1f1f1;
+}
 
-        /* 🔹 Botón Editar */
-        .btn-editar {
-            background-color: #007bff;
-            color: white;
-            padding: 6px 10px;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background 0.3s;
-            font-size: 12px;
-        }
-        .btn-editar:hover {
-            background-color: #0056b3;
-        }
+/* 🔹 Botón Editar */
+.btn-editar {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.3s;
+    font-size: 14px;
+}
+.btn-editar:hover {
+    background-color: #0056b3;
+}
 
-        /* 🔹 Ventana emergente */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            width: 85%;
-            max-width: 400px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-            text-align: center;
-        }
-        .close-btn {
-            background-color: red;
-            color: white;
-            padding: 5px;
-            border: none;
-            cursor: pointer;
-            float: right;
-            border-radius: 4px;
-        }
-        .save-btn {
-            background-color: green;
-            color: white;
-            padding: 10px;
-            width: 100%;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        .save-btn:hover {
-            background-color: darkgreen;
-        }
+/* 🔹 Ventana emergente */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+.close-btn {
+    background-color: red;
+    color: white;
+    padding: 8px;
+    border: none;
+    cursor: pointer;
+    float: right;
+    border-radius: 4px;
+}
+.save-btn {
+    background-color: green;
+    color: white;
+    padding: 12px;
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.save-btn:hover {
+    background-color: darkgreen;
+}
 
-        select, textarea {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-        }
+select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
 
-        /* 🔹 Ajustes móviles */
-        @media (max-width: 600px) {
-            .navbar {
-                font-size: 16px;
-                padding: 8px;
-            }
-            h2 {
-                font-size: 20px;
-            }
-            .container {
-                padding: 10px;
-            }
-            .btn-editar {
-                padding: 5px 8px;
-                font-size: 10px;
-            }
-            .modal-content {
-                width: 90%;
-                padding: 10px;
-            }
-            .save-btn {
-                padding: 8px;
-            }
-        }
-    </style>
+/* 🔹 Ajustes móviles (iPhone 8, iPhone 14 y más) */
+@media (max-width: 430px) {  /* iPhone 14 Pro Max */
+    .navbar {
+        font-size: 18px;
+        padding: 10px;
+    }
+    h2 {
+        font-size: 22px;
+    }
+    .container {
+        padding: 15px;
+    }
+    .btn-editar {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    .modal-content {
+        width: 95%;
+        padding: 15px;
+    }
+    .save-btn {
+        padding: 10px;
+    }
+    th, td {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
+
+@media (max-width: 375px) { /* iPhone 8 */
+    .navbar {
+        font-size: 16px;
+        padding: 8px;
+    }
+    h2 {
+        font-size: 20px;
+    }
+    .btn-editar {
+        padding: 5px 8px;
+        font-size: 10px;
+    }
+    .modal-content {
+        width: 98%;
+        padding: 10px;
+    }
+    th, td {
+        font-size: 12px;
+        padding: 6px;
+    }
+}
+</style>
 </head>
 <body>
 
@@ -177,6 +203,8 @@
                         <th>Fecha</th>
                         <th>Técnico Asignado</th>
                         <th>Estado</th>
+                        <th>Cliente</th>
+                        <th>Dirección</th>
                         <th>Acción</th>
                     </tr>
                 </thead>
@@ -206,7 +234,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, query, getDocs, doc, updateDoc, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, query, getDocs, doc, updateDoc, where, getDoc  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBNeUIIrJlQ1LYCmXSuVDGWlYHd_YwhGP8",
@@ -225,40 +253,62 @@
 
         // Cargar reportes para el técnico
         async function cargarReportes() {
-            try {
-                const tecnicoIdActual = localStorage.getItem("tecnicoId");
-                if (!tecnicoIdActual) {
-                    console.error("Error: técnico no autenticado");
-                    return;
-                }
-
-                const q = query(collection(db, "Reportes"), where("tecnicoId", "==", tecnicoIdActual));
-                const querySnapshot = await getDocs(q);
-                const reportesBody = document.getElementById("reportesBody");
-                reportesBody.innerHTML = "";
-
-                if (querySnapshot.empty) {
-                    reportesBody.innerHTML = `<tr><td colspan="5">No hay reportes disponibles para este técnico.</td></tr>`;
-                    return;
-                }
-
-                for (const docu of querySnapshot.docs) {
-                    const data = docu.data();
-                    const tecnicoNombre = data.tecnicoNombre || "Sin Asignar";
-                    
-                    reportesBody.innerHTML += 
-                        `<tr>
-                            <td>${data.observaciones || "Sin descripción"}</td>
-                            <td>${data.fechaTermino || "Sin fecha"}</td>
-                            <td>${tecnicoNombre}</td>
-                            <td>${data.estado || "Pendiente"}</td>
-                            <td><button class="btn-editar" onclick="abrirModal('${docu.id}', '${data.estado || 'Pendiente'}', '${data.informacion || ''}')">Editar</button></td>
-                        </tr>`;
-                }
-            } catch (error) {
-                console.error("Error al cargar reportes:", error);
-            }
+    try {
+        const tecnicoIdActual = localStorage.getItem("tecnicoId");
+        if (!tecnicoIdActual) {
+            console.error("Error: técnico no autenticado");
+            return;
         }
+
+        // Obtener reportes del técnico actual
+        const q = query(collection(db, "Reportes"), where("tecnicoId", "==", tecnicoIdActual));
+        const querySnapshot = await getDocs(q);
+        const reportesBody = document.getElementById("reportesBody");
+        reportesBody.innerHTML = "";
+
+        if (querySnapshot.empty) {
+            reportesBody.innerHTML = `<tr><td colspan="7">No hay reportes disponibles para este técnico.</td></tr>`;
+            return;
+        }
+
+        // Obtener el nombre del técnico
+        const tecnicoRef = doc(db, "Tecnicos", tecnicoIdActual);
+        const tecnicoSnap = await getDoc(tecnicoRef);
+        const tecnicoNombre = tecnicoSnap.exists() ? tecnicoSnap.data().nombre : "Sin Asignar";
+
+        // Procesar reportes
+        for (const docu of querySnapshot.docs) {
+            const data = docu.data();
+            let clienteNombre = "Desconocido";
+            let clienteDireccion = "Sin dirección";
+
+            // Si hay un clienteId en el reporte, obtener su nombre y dirección
+            if (data.clienteId) {
+                const clienteRef = doc(db, "Clientes", data.clienteId);
+                const clienteSnap = await getDoc(clienteRef);
+                if (clienteSnap.exists()) {
+                    const clienteData = clienteSnap.data();
+                    clienteNombre = clienteData.nombre || "Sin Nombre";
+                    clienteDireccion = clienteData.direccion || "Sin dirección";
+                }
+            }
+
+            // Mostrar los datos en la tabla
+            reportesBody.innerHTML += 
+                `<tr>
+                    <td>${data.observaciones || "Sin descripción"}</td>
+                    <td>${data.fechaTermino || "Sin fecha"}</td>
+                    <td>${tecnicoNombre}</td>
+                    <td>${clienteNombre}</td>
+                    <td>${clienteDireccion}</td>
+                    <td>${data.estado || "Pendiente"}</td>
+                    <td><button class="btn-editar" onclick="abrirModal('${docu.id}', '${data.estado || 'Pendiente'}', '${data.informacion || ''}')">Editar</button></td>
+                </tr>`;
+        }
+    } catch (error) {
+        console.error("Error al cargar reportes:", error);
+    }
+}
 
         // Abrir modal de edición
         window.abrirModal = function(id, estadoActual, infoActual) {
